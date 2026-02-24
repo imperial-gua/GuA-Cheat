@@ -20,6 +20,32 @@
 
 package com.gua.imperiumGuaCheat.client;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public class CheatConfig {
     public static boolean TestActive = false;
+    public static boolean killAuraActive = false;
+    public static boolean hitboxesActive = false;
+    public static long lastAttackTime = 0;
+
+    public static class DamagePopUp {
+        public double x, y, z;
+        public String amount;
+        public long spawnTime;
+
+        public DamagePopUp(double x, double y, double z, String amount) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.amount = amount;
+            this.spawnTime = System.currentTimeMillis();
+        }
+    }
+
+    public static CopyOnWriteArrayList<DamagePopUp> damagePopUps = new CopyOnWriteArrayList<>();
+
+    public static void addDamage(double x, double y, double z, double amount) {
+        String text = "§c-" + String.format("%.1f", amount);
+        damagePopUps.add(new DamagePopUp(x, y + 1.2, z, text));
+    }
 }

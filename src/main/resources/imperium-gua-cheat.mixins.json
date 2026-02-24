@@ -4,7 +4,9 @@
   "package": "com.gua.imperiumGuaCheat.client.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "LightmapMixin"
+    "LightmapMixin",
+    "EntityRendererMixin",
+    "WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

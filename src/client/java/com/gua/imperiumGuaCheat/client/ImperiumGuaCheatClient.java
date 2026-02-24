@@ -45,5 +45,49 @@ public class ImperiumGuaCheatClient implements ClientModInitializer {
                client.setScreen(new FunctionMenuScreen());
             }
         });
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player == null || client.world == null || !CheatConfig.killAuraActive) return;
+
+            long currentTime = System.currentTimeMillis();
+            long delay = 90 + (long)(Math.random() * 30);
+
+            if (currentTime - CheatConfig.lastAttackTime < delay) return;
+
+            for (net.minecraft.entity.Entity entity : client.world.getEntities()) {
+                if (entity != client.player
+                        && entity instanceof net.minecraft.entity.LivingEntity
+                        && entity.isAlive()
+                        && client.player.distanceTo(entity) <= 3.6f
+                        && client.player.canSee(entity)) {
+
+                    double finalDamage = 1.0;
+                    if (client.player.getMainHandStack() != null) {
+                        finalDamage = client.player.getAttributeValue(net.minecraft.entity.attribute.EntityAttributes.GENERIC_ATTACK_DAMAGE);
+
+                        float enchanmentModifier = net.minecraft.enchantment.EnchantmentHelper.getAttackDamage(client.player.getMainHandStack(), ((net.minecraft.entity.LivingEntity) entity).getGroup());
+                        finalDamage += enchanmentModifier;
+                    }
+
+                    client.interactionManager.attackEntity(client.player, entity);
+                    client.player.swingHand(net.minecraft.util.Hand.MAIN_HAND);
+
+                    if (client.player.fallDistance > 0.0f && !client.player.isOnGround() && !client.player.isClimbing()) {
+                        finalDamage *= 1.5;
+                    }
+
+                    CheatConfig.addDamage(
+                            entity.getX(),
+                            entity.getY() + entity.getHeight(),
+                            entity.getZ(),
+                            finalDamage
+                    );
+
+                    CheatConfig.lastAttackTime = currentTime;
+                    break;
+                }
+
+            }
+        });
     }
 }

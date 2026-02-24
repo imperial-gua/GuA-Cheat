@@ -33,15 +33,42 @@ public class FunctionMenuScreen extends Screen {
 
     @Override
     protected void init() {
+        int buttonWidth = 200;
+        int buttonHeight = 20;
+        int verticalSpacing = 25;
+        int startY = 40;
+        int centerX = this.width / 2 - 100;
+
         this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("Test: " + (CheatConfig.TestActive ? "ВКЛ" : "ВЫКЛ")),
+                        Text.literal("Яркость: " + (CheatConfig.TestActive ? "ВКЛ" : "ВЫКЛ")),
                         button -> {
                             CheatConfig.TestActive = !CheatConfig.TestActive;
-                            button.setMessage(Text.literal("Тест: " + (CheatConfig.TestActive ? "ВКЛ" : "ВЫКЛ")));
+                            button.setMessage(Text.literal("Яркость: " + (CheatConfig.TestActive ? "ВКЛ" : "ВЫКЛ")));
                         })
-                .dimensions(this.width / 2 - 100, 50, 200, 20)
+                .dimensions(centerX, startY, buttonWidth, buttonHeight)
+                .build());
+
+        this.addDrawableChild(ButtonWidget.builder(
+                        Text.literal("KillAura: " + (CheatConfig.killAuraActive ? "ВКЛ" : "ВЫКЛ")),
+                        button -> {
+                            CheatConfig.killAuraActive = !CheatConfig.killAuraActive;
+                            button.setMessage(Text.literal("KillAura: " + (CheatConfig.killAuraActive ? "ВКЛ" : "ВЫКЛ")));
+                        })
+                .dimensions(centerX, startY + verticalSpacing, buttonWidth, buttonHeight)
+                .build());
+
+        this.addDrawableChild(ButtonWidget.builder(
+                        Text.literal("Хитбоксы: " + (CheatConfig.hitboxesActive ? "ВКЛ" : "ВЫКЛ")),
+                        button -> {
+                            CheatConfig.hitboxesActive = !CheatConfig.hitboxesActive;
+                            button.setMessage(Text.literal("Хитбоксы: " + (CheatConfig.hitboxesActive ? "ВКЛ" : "ВЫКЛ")));
+
+                            net.minecraft.client.MinecraftClient.getInstance().getEntityRenderDispatcher().setRenderHitboxes(CheatConfig.hitboxesActive);
+                        })
+                .dimensions(centerX, startY + (verticalSpacing * 2), buttonWidth, buttonHeight)
                 .build());
     }
+
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
