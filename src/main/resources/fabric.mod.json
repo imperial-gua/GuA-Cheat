@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "imperium-gua-cheat",
+  "version": "${version}",
+  "name": "Imperium-GuA-cheat",
+  "description": "Cheat for Minecraft 1.20",
+  "authors": [],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "com.gua.imperiumGuaCheat.client.ImperiumGuaCheatDataGenerator"
+    ],
+    "client": [
+      "com.gua.imperiumGuaCheat.client.ImperiumGuaCheatClient"
+    ],
+    "main": [
+      "com.gua.imperiumGuaCheat.ImperiumGuaCheat"
+    ]
+  },
+  "mixins": [
+    "imperium-gua-cheat.mixins.json",
+    {
+      "config": "imperium-gua-cheat.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
