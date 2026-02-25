@@ -48,45 +48,49 @@ public class ImperiumGuaCheatClient implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null || client.world == null || !CheatConfig.killAuraActive) return;
-
             long currentTime = System.currentTimeMillis();
             long delay = 90 + (long)(Math.random() * 30);
-
             if (currentTime - CheatConfig.lastAttackTime < delay) return;
 
             for (net.minecraft.entity.Entity entity : client.world.getEntities()) {
-                if (entity != client.player
-                        && entity instanceof net.minecraft.entity.LivingEntity
-                        && entity.isAlive()
-                        && client.player.distanceTo(entity) <= 3.6f
-                        && client.player.canSee(entity)) {
+                if (entity != client.player && entity instanceof net.minecraft.entity.LivingEntity livingEntity && entity.isAlive() && client.player.distanceTo(entity) <= 3.6f && client.player.canSee(entity)) {
+                    net.minecraft.item.ItemStack stack = client.player.getMainHandStack();
+                    float cooldownProgress = client.player.getAttackCooldownProgressPerTick();
+                    float baseAttr = (float) client.player.getAttributeValue(net.minecraft.entity.attribute.EntityAttributes.GENERIC_ATTACK_DAMAGE);
+                    float attackDamage = baseAttr * cooldownProgress;
+                    attackDamage += net.minecraft.enchantment.EnchantmentHelper.getAttackDamage(stack, livingEntity.getGroup());
 
-                    double finalDamage = 1.0;
-                    if (client.player.getMainHandStack() != null) {
-                        finalDamage = client.player.getAttributeValue(net.minecraft.entity.attribute.EntityAttributes.GENERIC_ATTACK_DAMAGE);
-
-                        float enchanmentModifier = net.minecraft.enchantment.EnchantmentHelper.getAttackDamage(client.player.getMainHandStack(), ((net.minecraft.entity.LivingEntity) entity).getGroup());
-                        finalDamage += enchanmentModifier;
+                    boolean isCritical = client.player.fallDistance > 0.0f && !client.player.isOnGround() && !client.player.isClimbing();
+                    if (isCritical) {
+                        attackDamage *= 1.5f;
                     }
+
+                    float damageVariance = 0.85f + (float) (Math.random() * 0.15f);
+                    float rawDamage = attackDamage * damageVariance;
+
+                    net.minecraft.entity.damage.DamageSource source = client.world.getDamageSources().playerAttack(client.player);
+
+                    float armor = livingEntity.getArmor();
+                    float toughness = (float) livingEntity.getAttributeValue(net.minecraft.entity.attribute.EntityAttributes.GENERIC_ARMOR_TOUGHNESS);
+                    float resistanceLevel = livingEntity.hasStatusEffect(net.minecraft.entity.effect.StatusEffects.RESISTANCE) ?
+                            livingEntity.getStatusEffect(net.minecraft.entity.effect.StatusEffects.RESISTANCE).getAmplifier() + 1 : 0;
+
+                    float armorReduction = armor / (armor + 8.0f + toughness * 4.0f);
+                    float resistanceReduction = resistanceLevel * 0.2f;
+                    float totalReduction = Math.min(armorReduction + resistanceReduction, 0.8f);
+
+                    float finalDamage = rawDamage * (1.0f - totalReduction);
+
+                    int protLevel = net.minecraft.enchantment.EnchantmentHelper.getProtectionAmount(livingEntity.getArmorItems(), source);
+                    finalDamage *= (1.0f - Math.min(protLevel * 0.04f, 0.8f));
 
                     client.interactionManager.attackEntity(client.player, entity);
                     client.player.swingHand(net.minecraft.util.Hand.MAIN_HAND);
 
-                    if (client.player.fallDistance > 0.0f && !client.player.isOnGround() && !client.player.isClimbing()) {
-                        finalDamage *= 1.5;
-                    }
-
-                    CheatConfig.addDamage(
-                            entity.getX(),
-                            entity.getY() + entity.getHeight(),
-                            entity.getZ(),
-                            finalDamage
-                    );
-
+                    CheatConfig.addDamage(entity.getX(), entity.getY() + entity.getHeight(), entity.getZ(), finalDamage);
                     CheatConfig.lastAttackTime = currentTime;
                     break;
                 }
-
             }
         });
     }
