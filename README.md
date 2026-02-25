@@ -4,7 +4,7 @@ Software created to help, not harm.
 
 ### Functions:
 
-- Soon
+- KillAura (from v0.1.1)
 
 ### Build
 
@@ -23,3 +23,11 @@ cd GuA-Cheat
 ### Author:
 
 - [oxxximif || oxxx1Dev || oxxx1mif](https://t.me/oxxximif)
+
+### Sponsors:
+
+- [kupitmaniha](https://t.me/Kupitmaniha)
+
+### Supporters:
+
+- Be the first
