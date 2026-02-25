@@ -26,10 +26,12 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 public class ImperiumGuaCheatClient implements ClientModInitializer {
     private static KeyBinding menuKey;
+    private static KeyBinding killAuraKey;
 
     @Override
     public void onInitializeClient() {
@@ -40,9 +42,30 @@ public class ImperiumGuaCheatClient implements ClientModInitializer {
                 "category.mymod.cheats"
         ));
 
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (Screen.hasControlDown() && menuKey.wasPressed()) {
                client.setScreen(new FunctionMenuScreen());
+            }
+        });
+
+        killAuraKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.imperium.killaura_toggle",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_KP_1,
+                "category.imperium.cheat"
+        ));
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            while (killAuraKey.wasPressed()) {
+                CheatConfig.killAuraActive = !CheatConfig.killAuraActive;
+
+                if (client.player != null) {
+                    client.player.sendMessage(
+                            Text.literal("KillAura: " + (CheatConfig.killAuraActive ? "ВКЛ" : "ВЫКЛ")),
+                            false
+                    );
+                }
             }
         });
 
