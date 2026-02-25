@@ -2,9 +2,13 @@
 
 Software created to help, not harm.
 
-### Functions:
+<details>
+<summary>Functions:</summary>
 
 - KillAura (from v0.1.1)
+- Hitbox (from v0.1.1)
+
+</details>
 
 ### Build
 
